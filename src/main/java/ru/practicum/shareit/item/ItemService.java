@@ -61,7 +61,7 @@ public class ItemService {
 
         if (oldItem == null) {
             throw new NotFoundException("Вещь с id = " + itemId + " не найдена");
-        } else if (oldItem.getOwner().getId() != userId) {
+        } else if (!oldItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Пользователь может редактировать только свои вещи!");
         } else {
             return itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(newItemDto)));
