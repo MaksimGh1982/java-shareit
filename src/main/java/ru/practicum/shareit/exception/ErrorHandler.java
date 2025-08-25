@@ -31,7 +31,6 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionResponse handleIncorrectParameter(final RuntimeException e) {
-        log.info("xceptionResponse INTERNAL_SERVER_ERROR");
         return new ExceptionResponse(
                 "Возникло исключение.",
                 e.getMessage()

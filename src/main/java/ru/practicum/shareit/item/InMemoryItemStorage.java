@@ -15,16 +15,7 @@ import java.util.stream.Collectors;
 @Repository("InMemoryItemStorage")
 public class InMemoryItemStorage implements ItemStorage {
     private final Map<Long, Item> items = new HashMap<>();
-
-    // вспомогательный метод для генерации идентификатора
-    private long getNextId() {
-        long currentMaxId = items.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
+    private long counter;
 
     public Item findItemById(long id) {
         if (items.containsKey(id)) {
@@ -41,7 +32,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     public Item create(Item item) {
-        item.setId(getNextId());
+        item.setId(++counter);
         items.put(item.getId(), item);
         return item;
     }
@@ -49,8 +40,8 @@ public class InMemoryItemStorage implements ItemStorage {
     public Collection<Item> searchItem(String text) {
         return items.values()
                 .stream()
-                .filter(item -> item.getAvailable() == true &&
-                        (item.getName().toUpperCase().indexOf(text) >= 0 || item.getDescription().toUpperCase().indexOf(text) >= 0))
+                .filter(item -> item.getAvailable() &&
+                        (item.getName().toUpperCase().contains(text) || item.getDescription().toUpperCase().contains(text)))
                 .collect(Collectors.toList());
     }
 

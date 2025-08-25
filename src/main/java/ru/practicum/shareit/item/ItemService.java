@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
@@ -22,15 +23,12 @@ public class ItemService {
 
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
-    private final ItemMapper itemMapper;
 
     @Autowired
     public ItemService(@Qualifier("InMemoryItemStorage") ItemStorage itemStorage,
-                       @Qualifier("InMemoryUserStorage") UserStorage userStorage,
-                       ItemMapper itemMapper) {
+                       @Qualifier("InMemoryUserStorage") UserStorage userStorage) {
 
         this.itemStorage = itemStorage;
-        this.itemMapper = itemMapper;
         this.userStorage = userStorage;
     }
 
@@ -38,22 +36,29 @@ public class ItemService {
         log.info("Поиск всех вещей пользователя id = {}", userId);
         return itemStorage.findAllByUser(userId)
                 .stream()
-                .map(itemMapper::toItemDto)
+                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     public ItemDto create(@Valid ItemDto itemDto, Long userId) {
         log.info("Создать вещь = {}", itemDto);
-        if (userStorage.findUserById(userId) == null) {
+        User user = userStorage.findUserById(userId);
+        if (user == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         } else {
             itemDto.setOwner(userId);
-            return itemMapper.toItemDto(itemStorage.create(itemMapper.toItem(itemDto)));
+            return ItemMapper.toItemDto(itemStorage.create(ItemMapper.toItem(itemDto, user)));
         }
     }
 
     public ItemDto update(ItemDto newItemDto, Long itemId, Long userId) {
         log.info("Обновить вещь id = {} пользователя = {}", itemId, userId);
+
+        User user = userStorage.findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("пользователь с id = " + userId + " не найден");
+        }
+
         newItemDto.setId(itemId);
         newItemDto.setOwner(userId);
 
@@ -64,13 +69,13 @@ public class ItemService {
         } else if (!oldItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Пользователь может редактировать только свои вещи!");
         } else {
-            return itemMapper.toItemDto(itemStorage.update(itemMapper.toItem(newItemDto)));
+            return ItemMapper.toItemDto(itemStorage.update(ItemMapper.toItem(newItemDto, user)));
         }
     }
 
     public ItemDto findItemById(long id) {
         log.info("Поиск вещи id = {}", id);
-        return itemMapper.toItemDto(itemStorage.findItemById(id));
+        return ItemMapper.toItemDto(itemStorage.findItemById(id));
     }
 
     public Collection<ItemDto> searchItem(String text) {
@@ -80,7 +85,7 @@ public class ItemService {
         } else {
             return itemStorage.searchItem(text)
                     .stream()
-                    .map(itemMapper::toItemDto)
+                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         }
     }

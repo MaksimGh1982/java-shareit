@@ -38,7 +38,7 @@ public class UserService {
     }
 
     public UserDto create(@Valid UserDto userDto) {
-        log.info("Создать пользователя  {}", userDto);
+        log.info("Создать пользователя  {}", userDto.getName());
         validate(userDto);
         return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
     }
@@ -47,6 +47,7 @@ public class UserService {
         if (newUserDto.getEmail() != null) {
             validate(newUserDto);
         }
+
         log.info("Обновить пользователя id = {}", userId);
         UserDto oldUserDto = findUserById(userId);
         if (oldUserDto != null) {
@@ -60,9 +61,7 @@ public class UserService {
     public void validate(UserDto userDto) {
         long cnt = findAll()
                 .stream()
-                .filter(u ->
-                        u.getEmail() == null ? false : u.getEmail().equals(userDto.getEmail())
-                )
+                .filter(u -> u.getEmail().equals(userDto.getEmail()))
                 .count();
         if (cnt > 0) {
             throw new RuntimeException("Не допустимы два пользователья с одинаковыми email");

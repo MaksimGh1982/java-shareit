@@ -11,6 +11,8 @@ import java.util.Collection;
 @RequestMapping("/items")
 public class ItemController {
 
+    private final String SHARER_USER = "X-Sharer-User-Id";
+
     private final ItemService itemService;
 
     @Autowired
@@ -19,7 +21,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> findAllByUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Collection<ItemDto> findAllByUser(@RequestHeader(SHARER_USER) Long userId) {
         return itemService.findAllByUser(userId);
     }
 

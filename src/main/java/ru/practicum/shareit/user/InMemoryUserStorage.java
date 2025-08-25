@@ -13,6 +13,8 @@ import java.util.Map;
 @Slf4j
 @Repository("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
+
+    private long counter;
     private final Map<Long, User> users = new HashMap<>();
 
     public Collection<User> findAll() {
@@ -27,28 +29,21 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User create(User user) {
-        user.setId(getNextId());
+        user.setId(++counter);
         users.put(user.getId(), user);
-        log.debug("Добавлен пользователь", user);
+        log.debug("Добавлен пользователь {}", user.getName());
         return user;
-    }
-
-    // вспомогательный метод для генерации идентификатора
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
     }
 
     public User update(User newUser) {
         if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
-
-            oldUser.setName(newUser.getName());
-            oldUser.setEmail(newUser.getEmail());
+            if (newUser.getName() != null) {
+                oldUser.setName(newUser.getName());
+            }
+            if (newUser.getEmail() != null) {
+                oldUser.setEmail(newUser.getEmail());
+            }
             log.debug("Изменен пользователь", oldUser);
             return oldUser;
         }
