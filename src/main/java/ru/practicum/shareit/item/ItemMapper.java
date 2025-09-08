@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
+@UtilityClass
 public class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
@@ -13,7 +15,7 @@ public class ItemMapper {
                 item.getDescription(),
                 item.getAvailable(),
                 item.getOwner() != null ? item.getOwner().getId() : null,
-                item.getRequest() != null ? item.getRequest().getId() : null
+                null
         );
     }
 

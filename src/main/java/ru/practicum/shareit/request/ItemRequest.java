@@ -5,7 +5,7 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-@Data
+//@Data
 public class ItemRequest {
     private Long id;
     private String description;
