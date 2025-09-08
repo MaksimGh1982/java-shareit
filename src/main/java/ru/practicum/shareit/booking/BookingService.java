@@ -84,30 +84,30 @@ public class BookingService {
     }
 
     private BooleanExpression getExprForBookingState(BookGetStatus state) {
-        BooleanExpression ExprByState = null;
+        BooleanExpression exprByState = null;
         switch (state) {
             case CURRENT:
-                ExprByState = QBooking.booking.end.after(LocalDateTime.now()).and(QBooking.booking.start.before(LocalDateTime.now()));
+                exprByState = QBooking.booking.end.after(LocalDateTime.now()).and(QBooking.booking.start.before(LocalDateTime.now()));
                 break;
             case PAST:
-                ExprByState = QBooking.booking.end.before(LocalDateTime.now());
+                exprByState = QBooking.booking.end.before(LocalDateTime.now());
                 break;
             case FUTURE:
-                ExprByState = QBooking.booking.start.after(LocalDateTime.now());
+                exprByState = QBooking.booking.start.after(LocalDateTime.now());
                 break;
             case WAITING:
-                ExprByState = QBooking.booking.status.eq(BookStatus.WAITING);
+                exprByState = QBooking.booking.status.eq(BookStatus.WAITING);
                 break;
             case REJECTED:
-                ExprByState = QBooking.booking.status.eq(BookStatus.REJECTED);
+                exprByState = QBooking.booking.status.eq(BookStatus.REJECTED);
                 break;
             case ALL:
-                ExprByState = Expressions.asBoolean(true).isTrue();
+                exprByState = Expressions.asBoolean(true).isTrue();
                 break;
             default:
                 throw new NotFoundException("Неверный статус = " + state);
         }
-        return ExprByState;
+        return exprByState;
     }
 
     public Collection<Booking> getAllBookingByUser(long userId, BookGetStatus state) {
