@@ -12,7 +12,7 @@ public class CommentDto {
     private Long id;
     @NotBlank(message = "Наимнование должно быть указано")
     private String text;
-    private Long item_id;
+    private Long itemId;
     private String authorName;
     private LocalDateTime created;
 }

@@ -83,7 +83,7 @@ public class BookingService {
         }
     }
 
-    private BooleanExpression GetExprForBookingState(BookGetStatus state) {
+    private BooleanExpression getExprForBookingState(BookGetStatus state) {
         BooleanExpression ExprByState = null;
         switch (state) {
             case CURRENT:
@@ -110,27 +110,27 @@ public class BookingService {
         return ExprByState;
     }
 
-    public Collection<Booking> GetAllBookingByUser(long userId, BookGetStatus state) {
+    public Collection<Booking> getAllBookingByUser(long userId, BookGetStatus state) {
         log.info("Показать бронирование пользователя id={}", userId);
         if (userRepository.findById(userId).orElse(null) == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         }
         BooleanExpression byUserId = QBooking.booking.booker.id.eq(userId);
 
-        return StreamSupport.stream(bookingRepository.findAll(byUserId.and(GetExprForBookingState(state)),
+        return StreamSupport.stream(bookingRepository.findAll(byUserId.and(getExprForBookingState(state)),
                         Sort.by(Sort.Direction.DESC, "start")).spliterator(), false)
                 .collect(Collectors.toList());
 
     }
 
-    public Collection<BookingDto> GetAllBookingByItemsUser(long userId, BookGetStatus state) {
+    public Collection<BookingDto> getAllBookingByItemsUser(long userId, BookGetStatus state) {
         log.info("олучение списка бронирований для всех вещей текущего пользователя id={}", userId);
         if (userRepository.findById(userId).orElse(null) == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         }
         BooleanExpression byUserId = QBooking.booking.item.owner.id.eq(userId);
 
-        return StreamSupport.stream(bookingRepository.findAll(byUserId.and(GetExprForBookingState(state)),
+        return StreamSupport.stream(bookingRepository.findAll(byUserId.and(getExprForBookingState(state)),
                         Sort.by(Sort.Direction.DESC, "start")).spliterator(), false)
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());

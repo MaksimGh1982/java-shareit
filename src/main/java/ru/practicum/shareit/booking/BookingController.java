@@ -39,12 +39,12 @@ public class BookingController {
     @GetMapping
     public Collection<Booking> GetAllBookingByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @RequestParam(defaultValue = "ALL") BookGetStatus state) {
-        return bookingService.GetAllBookingByUser(userId, state);
+        return bookingService.getAllBookingByUser(userId, state);
     }
 
     @GetMapping("/owner")
     public Collection<BookingDto> GetAllBookingByItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                            @RequestParam(defaultValue = "ALL") BookGetStatus state) {
-        return bookingService.GetAllBookingByItemsUser(userId, state);
+        return bookingService.getAllBookingByItemsUser(userId, state);
     }
 }

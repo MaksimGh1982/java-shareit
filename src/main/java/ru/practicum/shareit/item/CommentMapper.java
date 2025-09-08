@@ -16,13 +16,13 @@ public class CommentMapper {
         );
     }
 
-    public static Comment toComment(CommentDto CommentDto, Item item, User user) {
+    public static Comment toComment(CommentDto commentDto, Item item, User user) {
         return new Comment(
-                CommentDto.getId(),
-                CommentDto.getText(),
+                commentDto.getId(),
+                commentDto.getText(),
                 item,
                 user,
-                CommentDto.getCreated()
+                commentDto.getCreated()
         );
     }
 }

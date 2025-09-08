@@ -155,7 +155,7 @@ public class ItemService {
 
     public CommentDto addComment(CommentDto newCommentDto, long itemId, long userId) {
         log.info("Добавление комментария к вещи id = {} пользователем = {}", itemId, userId);
-        if (bookingService.GetAllBookingByUser(userId, BookGetStatus.PAST)
+        if (bookingService.getAllBookingByUser(userId, BookGetStatus.PAST)
                 .stream()
                 .filter(booking -> booking.getItem().getId() == itemId)
                 .count() == 0) {
