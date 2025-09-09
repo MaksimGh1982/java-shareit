@@ -64,7 +64,7 @@ public class ItemService {
                 .map(item -> {
                     Booking prevBooking = bookings
                             .stream()
-                            .filter(booking -> booking.getItem().getId() == item.getId())
+                            .filter(booking -> booking.getItem().getId().equals(item.getId()))
                             .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                             .sorted(Comparator.comparing(Booking::getStart).reversed())
                             .findFirst()
@@ -76,7 +76,7 @@ public class ItemService {
 
                     Booking nextBooking = bookingRepository.findByItemId(item.getId())
                             .stream()
-                            .filter(booking -> booking.getItem().getId() == item.getId())
+                            .filter(booking -> booking.getItem().getId().equals(item.getId()))
                             .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                             .sorted(Comparator.comparing(Booking::getStart))
                             .findFirst()
