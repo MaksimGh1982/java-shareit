@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CommentDto {
     private Long id;
-    @NotBlank(message = "Наимнование должно быть указано")
+    @NotBlank(message = "Наименование должно быть указано")
     private String text;
     private Long itemId;
     private String authorName;

@@ -39,7 +39,7 @@ public class BookingService {
     }
 
     public Booking create(@Valid BookingDto bookingDto, Long userId) {
-        log.info("Создать бронирование");
+        log.info("Создать бронирование пользователя  id = " + userId + " вещи id = " + bookingDto.getItemId());
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
@@ -54,7 +54,8 @@ public class BookingService {
         }
         if (bookingDto.getStart().isBefore(LocalDateTime.now()) || bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
                 bookingDto.getStart().isEqual(bookingDto.getEnd())) {
-            throw new ValidException("Неверные даты бронирования");
+            throw new ValidException("Неверные даты бронирования start = " + bookingDto.getStart().toString() +
+                    " end = " + bookingDto.getEnd().toString());
         }
         bookingDto.setStatus(BookStatus.WAITING);
         return bookingRepository.save(BookingMapper.toBooking(bookingDto, item, user));
@@ -64,8 +65,11 @@ public class BookingService {
     public Booking approved(long bookingId, String approved, long userId) {
         log.info("Подтвердить бронирование id= {} approved= {}", bookingId, approved);
         Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        if (booking == null) {
+            throw new NotFoundException("Бронирование с id = " + bookingId + "не существует");
+        }
         if (booking.getItem().getOwner().getId() != userId) {
-            throw new ValidException("Подтвердить бронирование может только валаделец вещи id= " +
+            throw new ValidException("Подтвердить бронирование может только владелец вещи id = " +
                     booking.getItem().getOwner().getId());
         } else {
             booking.setStatus(approved.equals("true") ? BookStatus.APPROVED : BookStatus.REJECTED);
@@ -76,6 +80,9 @@ public class BookingService {
     public Booking findBookingById(long bookingId, long userId) {
         log.info("Показать бронирование id={}", bookingId);
         Booking booking = bookingRepository.findById(bookingId).orElse(null);
+        if (booking == null) {
+            throw new NotFoundException("Бронирование с id = " + bookingId + "не существует");
+        }
         if (booking.getBooker().getId() != userId && booking.getItem().getOwner().getId() != userId) {
             throw new NotFoundException("Бронирование с id = " + bookingId + " не принадлежит пользователю id=" + userId);
         } else {
@@ -113,7 +120,7 @@ public class BookingService {
     public Collection<Booking> getAllBookingByUser(long userId, BookGetStatus state) {
         log.info("Показать бронирование пользователя id={}", userId);
         if (userRepository.findById(userId).orElse(null) == null) {
-            throw new NotFoundException("пользователь с id = " + userId + " не найден");
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
         BooleanExpression byUserId = QBooking.booking.booker.id.eq(userId);
 
@@ -124,9 +131,9 @@ public class BookingService {
     }
 
     public Collection<BookingDto> getAllBookingByItemsUser(long userId, BookGetStatus state) {
-        log.info("олучение списка бронирований для всех вещей текущего пользователя id={}", userId);
+        log.info("Получение списка бронирований для всех вещей текущего пользователя id={}", userId);
         if (userRepository.findById(userId).orElse(null) == null) {
-            throw new NotFoundException("пользователь с id = " + userId + " не найден");
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
         BooleanExpression byUserId = QBooking.booking.item.owner.id.eq(userId);
 

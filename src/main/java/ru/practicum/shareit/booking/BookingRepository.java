@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long>, QuerydslPredicateExecutor<Booking> {
     List<Booking> findByItemId(long itemId);
+    List<Booking> findByItemOwnerId(long ownerId);
 }

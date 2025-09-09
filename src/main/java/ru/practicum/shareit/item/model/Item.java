@@ -1,13 +1,14 @@
 package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.user.User;
 
+import java.util.Objects;
+
+@Getter
+@Setter
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "item", schema = "public")
@@ -26,4 +27,16 @@ public class Item {
     private User owner;
     @Column(name = "request_id")
     private /*ItemRequest*/ Long request;
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return id != null && id.equals(item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

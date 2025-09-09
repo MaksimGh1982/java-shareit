@@ -12,11 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemDtoWithBookComment {
     private Long id;
-    @NotBlank(message = "Наимнование должно быть указано")
+    @NotBlank(message = "Наименование должно быть указано")
     private String name;
     @NotBlank(message = "Описание должно быть указано")
     private String description;
-    @NotNull(message = "Доступность должно быть указано")
+    @NotNull(message = "Доступность должна быть указана")
     private Boolean available;
     private Long owner;
     private Long request;

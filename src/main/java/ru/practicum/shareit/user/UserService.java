@@ -34,6 +34,10 @@ public class UserService {
 
     public UserDto findUserById(long id) {
         log.info("Пользователь id = {}", id);
+        User user = repository.findById(id).orElse(null);
+        if (user == null) {
+            throw new NotFoundException(MessageFormat.format("Пользователь с id = {0} не найден", id));
+        }
         return UserMapper.toUserDto(repository.findById(id).orElse(null));
     }
 

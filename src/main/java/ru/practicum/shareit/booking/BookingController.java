@@ -20,7 +20,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public Booking create(@RequestBody BookingDto bookingDto, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Booking create(@RequestBody BookingDto bookingDto, @RequestHeader(SHARER_USER) Long userId) {
         return bookingService.create(bookingDto, userId);
     }
 
@@ -32,18 +32,18 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public Booking findBooking(@PathVariable long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public Booking findBooking(@PathVariable long bookingId, @RequestHeader(SHARER_USER) Long userId) {
         return bookingService.findBookingById(bookingId, userId);
     }
 
     @GetMapping
-    public Collection<Booking> getAllBookingByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public Collection<Booking> getAllBookingByUser(@RequestHeader(SHARER_USER) Long userId,
                                                    @RequestParam(defaultValue = "ALL") BookGetStatus state) {
         return bookingService.getAllBookingByUser(userId, state);
     }
 
     @GetMapping("/owner")
-    public Collection<BookingDto> getAllBookingByItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public Collection<BookingDto> getAllBookingByItemsUser(@RequestHeader(SHARER_USER) Long userId,
                                                            @RequestParam(defaultValue = "ALL") BookGetStatus state) {
         return bookingService.getAllBookingByItemsUser(userId, state);
     }

@@ -11,6 +11,7 @@ import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookComment;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -50,16 +51,20 @@ public class ItemService {
 
     public Collection<ItemDtoWithBookComment> findAllByUser(Long userId) {
         log.info("Поиск всех вещей пользователя id = {}", userId);
+
+        List<String> comments = commentRepository.findByItemOwnerId(userId)
+                .stream()
+                .map(Comment::getText)
+                .collect(Collectors.toList());
+
+        List<Booking> bookings = bookingRepository.findByItemOwnerId(userId);
+
         return itemRepository.findByOwnerId(userId)
                 .stream()
                 .map(item -> {
-                    List<String> comments = commentRepository.findByItemId(item.getId())
+                    Booking prevBooking = bookings
                             .stream()
-                            .map(comment -> comment.getText())
-                            .collect(Collectors.toList());
-
-                    Booking prevBooking = bookingRepository.findByItemId(item.getId())
-                            .stream()
+                            .filter(booking -> booking.getItem().getId() == item.getId())
                             .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
                             .sorted(Comparator.comparing(Booking::getStart).reversed())
                             .findFirst()
@@ -71,6 +76,7 @@ public class ItemService {
 
                     Booking nextBooking = bookingRepository.findByItemId(item.getId())
                             .stream()
+                            .filter(booking -> booking.getItem().getId() == item.getId())
                             .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
                             .sorted(Comparator.comparing(Booking::getStart))
                             .findFirst()
@@ -79,8 +85,6 @@ public class ItemService {
                     if (nextBooking != null) {
                         nextDateBooking = new DateBooking(nextBooking.getStart(), nextBooking.getEnd());
                     }
-
-
                     return ItemDtoWithBookCommentMapper.toItemDtoWithBookComment(item, prevDateBooking, nextDateBooking, comments);
                 })
                 .collect(Collectors.toList());
@@ -127,18 +131,17 @@ public class ItemService {
 
     public ItemDtoWithBookComment findItemById(long id) {
         log.info("Поиск вещи id = {}", id);
-        return List.of(itemRepository.findById(id))
-                .stream()
-                .map(item -> {
-                    List<String> comments = commentRepository.findByItemId(item.get().getId())
-                            .stream()
-                            .map(comment -> comment.getText())
-                            .collect(Collectors.toList());
+        Item item = itemRepository.findById(id).orElse(null);
+        if (item == null) {
+            throw new NotFoundException("Вещь с id = " + id + " не найдена");
+        }
 
-                    return ItemDtoWithBookCommentMapper.toItemDtoWithBookComment(item.get(), null, null, comments);
-                })
-                .findFirst()
-                .get();
+        List<String> comments = commentRepository.findByItemId(item.getId())
+                .stream()
+                .map(Comment::getText)
+                .collect(Collectors.toList());
+
+        return ItemDtoWithBookCommentMapper.toItemDtoWithBookComment(item, null, null, comments);
     }
 
     public Collection<ItemDto> searchItem(String text) {
@@ -159,7 +162,7 @@ public class ItemService {
                 .stream()
                 .filter(booking -> booking.getItem().getId() == itemId)
                 .count() == 0) {
-            throw new ValidException("Бронирование не найдено");
+            throw new ValidException("Бронирование вещи id = " + itemId + " не найдено");
         }
         newCommentDto.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(newCommentDto,
