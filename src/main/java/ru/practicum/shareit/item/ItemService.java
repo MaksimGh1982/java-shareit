@@ -3,17 +3,26 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookComment;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserRepository;
 
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,61 +30,118 @@ import java.util.stream.Collectors;
 @Validated
 public class ItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingService bookingService;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     @Autowired
-    public ItemService(@Qualifier("InMemoryItemStorage") ItemStorage itemStorage,
-                       @Qualifier("InMemoryUserStorage") UserStorage userStorage) {
-
-        this.itemStorage = itemStorage;
-        this.userStorage = userStorage;
+    public ItemService(ItemRepository itemRepository,
+                       UserRepository userRepository,
+                       BookingService bookingService,
+                       CommentRepository commentRepository,
+                       BookingRepository bookingRepository) {
+        this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
+        this.bookingService = bookingService;
+        this.commentRepository = commentRepository;
+        this.bookingRepository = bookingRepository;
     }
 
-    public Collection<ItemDto> findAllByUser(Long userId) {
+    public Collection<ItemDtoWithBookComment> findAllByUser(Long userId) {
         log.info("Поиск всех вещей пользователя id = {}", userId);
-        return itemStorage.findAllByUser(userId)
+
+        List<String> comments = commentRepository.findByItemOwnerId(userId)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(Comment::getText)
+                .collect(Collectors.toList());
+
+        List<Booking> bookings = bookingRepository.findByItemOwnerId(userId);
+
+        return itemRepository.findByOwnerId(userId)
+                .stream()
+                .map(item -> {
+                    Booking prevBooking = bookings
+                            .stream()
+                            .filter(booking -> booking.getItem().getId().equals(item.getId()))
+                            .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                            .sorted(Comparator.comparing(Booking::getStart).reversed())
+                            .findFirst()
+                            .orElse(null);
+                    DateBooking prevDateBooking = null;
+                    if (prevBooking != null) {
+                        prevDateBooking = new DateBooking(prevBooking.getStart(), prevBooking.getEnd());
+                    }
+
+                    Booking nextBooking = bookingRepository.findByItemId(item.getId())
+                            .stream()
+                            .filter(booking -> booking.getItem().getId().equals(item.getId()))
+                            .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                            .sorted(Comparator.comparing(Booking::getStart))
+                            .findFirst()
+                            .orElse(null);
+                    DateBooking nextDateBooking = null;
+                    if (nextBooking != null) {
+                        nextDateBooking = new DateBooking(nextBooking.getStart(), nextBooking.getEnd());
+                    }
+                    return ItemDtoWithBookCommentMapper.toItemDtoWithBookComment(item, prevDateBooking, nextDateBooking, comments);
+                })
                 .collect(Collectors.toList());
     }
 
     public ItemDto create(@Valid ItemDto itemDto, Long userId) {
         log.info("Создать вещь = {}", itemDto);
-        User user = userStorage.findUserById(userId);
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         } else {
             itemDto.setOwner(userId);
-            return ItemMapper.toItemDto(itemStorage.create(ItemMapper.toItem(itemDto, user)));
+            return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemDto, user)));
         }
     }
 
     public ItemDto update(ItemDto newItemDto, Long itemId, Long userId) {
         log.info("Обновить вещь id = {} пользователя = {}", itemId, userId);
 
-        User user = userStorage.findUserById(userId);
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         }
 
-        newItemDto.setId(itemId);
-        newItemDto.setOwner(userId);
-
-        Item oldItem = itemStorage.findItemById(itemId);
+        Item oldItem = itemRepository.findById(itemId).orElse(null);
 
         if (oldItem == null) {
             throw new NotFoundException("Вещь с id = " + itemId + " не найдена");
         } else if (!oldItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Пользователь может редактировать только свои вещи!");
         } else {
-            return ItemMapper.toItemDto(itemStorage.update(ItemMapper.toItem(newItemDto, user)));
+            if (newItemDto.getName() != null) {
+                oldItem.setName(newItemDto.getName());
+            }
+            if (newItemDto.getDescription() != null) {
+                oldItem.setDescription(newItemDto.getDescription());
+            }
+            if (newItemDto.getAvailable() != null) {
+                oldItem.setAvailable(newItemDto.getAvailable());
+            }
+            return ItemMapper.toItemDto(itemRepository.save(oldItem));
         }
     }
 
-    public ItemDto findItemById(long id) {
+    public ItemDtoWithBookComment findItemById(long id) {
         log.info("Поиск вещи id = {}", id);
-        return ItemMapper.toItemDto(itemStorage.findItemById(id));
+        Item item = itemRepository.findById(id).orElse(null);
+        if (item == null) {
+            throw new NotFoundException("Вещь с id = " + id + " не найдена");
+        }
+
+        List<String> comments = commentRepository.findByItemId(item.getId())
+                .stream()
+                .map(Comment::getText)
+                .collect(Collectors.toList());
+
+        return ItemDtoWithBookCommentMapper.toItemDtoWithBookComment(item, null, null, comments);
     }
 
     public Collection<ItemDto> searchItem(String text) {
@@ -83,10 +149,24 @@ public class ItemService {
         if (text.isEmpty()) {
             return new ArrayList<ItemDto>();
         } else {
-            return itemStorage.searchItem(text)
+            return itemRepository.findByNameIgnoreCaseOrDescriptionIgnoreCaseContaining(text, text)
                     .stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         }
+    }
+
+    public CommentDto addComment(CommentDto newCommentDto, long itemId, long userId) {
+        log.info("Добавление комментария к вещи id = {} пользователем = {}", itemId, userId);
+        if (bookingService.getAllBookingByUser(userId, BookGetStatus.PAST)
+                .stream()
+                .filter(booking -> booking.getItem().getId() == itemId)
+                .count() == 0) {
+            throw new ValidException("Бронирование вещи id = " + itemId + " не найдено");
+        }
+        newCommentDto.setCreated(LocalDateTime.now());
+        return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(newCommentDto,
+                itemRepository.findById(itemId).get(),
+                userRepository.findById(userId).get())));
     }
 }

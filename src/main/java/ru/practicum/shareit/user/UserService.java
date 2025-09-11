@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -17,16 +16,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @Validated
 public class UserService {
-    private final UserStorage userStorage;
+
+    private final UserRepository repository;
 
     @Autowired
-    public UserService(@Qualifier("InMemoryUserStorage") UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserRepository repository) {
+        this.repository = repository;
     }
 
     public Collection<UserDto> findAll() {
         log.info("Список пользователей");
-        return userStorage.findAll()
+        return repository.findAll()
                 .stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -34,13 +34,17 @@ public class UserService {
 
     public UserDto findUserById(long id) {
         log.info("Пользователь id = {}", id);
-        return UserMapper.toUserDto(userStorage.findUserById(id));
+        User user = repository.findById(id).orElse(null);
+        if (user == null) {
+            throw new NotFoundException(MessageFormat.format("Пользователь с id = {0} не найден", id));
+        }
+        return UserMapper.toUserDto(repository.findById(id).orElse(null));
     }
 
     public UserDto create(@Valid UserDto userDto) {
         log.info("Создать пользователя  {}", userDto.getName());
         validate(userDto);
-        return UserMapper.toUserDto(userStorage.create(UserMapper.toUser(userDto)));
+        return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
     }
 
     public UserDto update(UserDto newUserDto, long userId) {
@@ -49,10 +53,15 @@ public class UserService {
         }
 
         log.info("Обновить пользователя id = {}", userId);
-        UserDto oldUserDto = findUserById(userId);
-        if (oldUserDto != null) {
-            newUserDto.setId(userId);
-            return UserMapper.toUserDto(userStorage.update(UserMapper.toUser(newUserDto)));
+        User oldUser = repository.findById(userId).orElse(null);
+        if (oldUser != null) {
+            if (newUserDto.getName() != null) {
+                oldUser.setName(newUserDto.getName());
+            }
+            if (newUserDto.getEmail() != null) {
+                oldUser.setEmail(newUserDto.getEmail());
+            }
+            return UserMapper.toUserDto(repository.save(oldUser));
         } else {
             throw new NotFoundException(MessageFormat.format("Пользователь с id = {0} не найден", userId));
         }
@@ -70,6 +79,6 @@ public class UserService {
 
     public void deleteUser(long id) {
         log.info("Удалить пользователя id = {}", id);
-        userStorage.deleteUser(id);
+        repository.deleteById(id);
     }
 }

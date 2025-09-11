@@ -2,10 +2,12 @@ package ru.practicum.shareit.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.util.Collection;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookComment;
 
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/items")
@@ -21,12 +23,12 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> findAllByUser(@RequestHeader(SHARER_USER) Long userId) {
+    public Collection<ItemDtoWithBookComment> findAllByUser(@RequestHeader(SHARER_USER) Long userId) {
         return itemService.findAllByUser(userId);
     }
 
     @PostMapping
-    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(SHARER_USER) Long userId) {
         return itemService.create(itemDto, userId);
     }
 
@@ -38,13 +40,20 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findItem(@PathVariable long itemId) {
+    public ItemDtoWithBookComment findItemBuId(@PathVariable long itemId) {
         return itemService.findItemById(itemId);
     }
 
     @GetMapping("/search")
     public Collection<ItemDto> searchItem(@RequestParam String text) {
         return itemService.searchItem(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestBody CommentDto newCommentDto,
+                                 @PathVariable long itemId,
+                                 @RequestHeader(SHARER_USER) Long userId) {
+        return itemService.addComment(newCommentDto, itemId, userId);
     }
 }
 

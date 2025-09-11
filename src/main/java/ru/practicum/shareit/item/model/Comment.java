@@ -1,8 +1,7 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
@@ -10,33 +9,29 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "Bookings", schema = "public")
-public class Booking {
+@Table(name = "comments", schema = "public")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "start_date", nullable = false)
-    private LocalDateTime start;
-    @Column(name = "end_date", nullable = false)
-    private LocalDateTime end;
+    @Column(name = "text", nullable = false)
+    private String text;
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
     @ManyToOne
-    @JoinColumn(name = "booker_id")
-    private User booker;
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BookStatus status;
+    @JoinColumn(name = "author_id")
+    private User authorName;
+    private LocalDateTime created;
 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Booking booking = (Booking) o;
-        return id != null && id.equals(booking.id);
+        Comment comment = (Comment) o;
+        return id != null && id.equals(comment.id);
     }
 
     @Override
@@ -44,5 +39,3 @@ public class Booking {
         return Objects.hash(id);
     }
 }
-
-
