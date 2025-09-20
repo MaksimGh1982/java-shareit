@@ -31,7 +31,7 @@ import static org.hamcrest.Matchers.notNullValue;
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
         classes = ShareItApp.class)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class intgrTest {
+public class IntgrTest {
 
     private final EntityManager em;
     private final UserService userService;

@@ -1,9 +1,7 @@
 package shareit.item.model;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
-import shareit.request.ItemRequest;
 import shareit.user.User;
 
 import java.util.Objects;

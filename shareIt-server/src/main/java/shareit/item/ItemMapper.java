@@ -3,7 +3,6 @@ package shareit.item;
 import lombok.experimental.UtilityClass;
 import shareit.item.dto.ItemDto;
 import shareit.item.model.Item;
-import shareit.request.ItemRequest;
 import shareit.user.User;
 
 @UtilityClass

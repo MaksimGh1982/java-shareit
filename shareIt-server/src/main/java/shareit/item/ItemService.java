@@ -17,7 +17,6 @@ import shareit.item.dto.ItemDto;
 import shareit.item.dto.ItemDtoWithBookComment;
 import shareit.item.model.Comment;
 import shareit.item.model.Item;
-import shareit.request.ItemRequest;
 import shareit.request.RequestRepository;
 import shareit.user.User;
 import shareit.user.UserRepository;
