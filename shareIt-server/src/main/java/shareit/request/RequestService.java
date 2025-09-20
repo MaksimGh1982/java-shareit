@@ -70,7 +70,7 @@ public class RequestService {
         }
         return requestRepository.findAll()
                 .stream()
-                .filter(itemRequest -> itemRequest.getRequestor().getId() != userId)
+                .filter(itemRequest -> !itemRequest.getRequestor().getId().equals(userId))
                 .map(RequestMapper::toItemRequestDto)
                 .sorted(Comparator.comparing(ItemRequestDto::getCreated))
                 .collect(Collectors.toList());
