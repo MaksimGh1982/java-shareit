@@ -40,7 +40,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithBookComment findItemBuId(@PathVariable long itemId) {
+    public ItemDtoWithBookComment findItemById(@PathVariable long itemId) {
         return itemService.findItemById(itemId);
     }
 

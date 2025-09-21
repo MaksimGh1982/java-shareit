@@ -13,14 +13,18 @@ import shareit.user.UserService;
 import shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -80,4 +84,40 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name").value(userDto.getName()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()));
     }
+
+    @Test
+    void findAll() throws Exception {
+        when(userService.findAll())
+                .thenReturn(List.of(userDto));
+
+        mvc.perform(get("/users")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(userDto.getId()))
+                .andExpect(jsonPath("$[0].name").value(userDto.getName()))
+                .andExpect(jsonPath("$[0].email").value(userDto.getEmail()));
+    }
+
+    @Test
+    void deleteUser() throws Exception {
+        doNothing().when(userService).deleteUser(anyLong());
+        mvc.perform(delete("/users/1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findUser() throws Exception {
+        when(userService.findUserById(anyLong()))
+                .thenReturn(userDto);
+
+        mvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userDto.getId()))
+                .andExpect(jsonPath("$.name").value(userDto.getName()))
+                .andExpect(jsonPath("$.email").value(userDto.getEmail()));
+    }
+
 }

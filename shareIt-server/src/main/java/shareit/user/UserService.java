@@ -70,7 +70,7 @@ public class UserService {
     public void validate(UserDto userDto) {
         long cnt = findAll()
                 .stream()
-                .filter(u -> u.getEmail().equals(userDto.getEmail()))
+                .filter(u -> u.getEmail().equals(userDto.getEmail()) && !u.getId().equals(userDto.getId()))
                 .count();
         if (cnt > 0) {
             throw new RuntimeException("Не допустимы два пользователья с одинаковыми email");

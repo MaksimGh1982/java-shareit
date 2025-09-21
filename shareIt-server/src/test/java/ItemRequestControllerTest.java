@@ -14,6 +14,7 @@ import shareit.request.dto.ItemRequestAnswerDto;
 import shareit.request.dto.ItemRequestDto;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -88,14 +89,36 @@ class ItemRequestControllerTest {
         when(requestService.getRequestById(anyLong()))
                 .thenReturn(itemRequestAnswerDto);
 
-        mvc.perform(get("/requests/5")
-                        .content(mapper.writeValueAsString(itemRequestDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/requests/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(itemRequestDto.getId()))
                 .andExpect(jsonPath("$.description").value(itemRequestDto.getDescription()))
                 .andExpect(jsonPath("$.requestorId").value(itemRequestDto.getRequestorId()));
+    }
+
+    @Test
+    void getRequestByUser() throws Exception {
+        when(requestService.getRequestByUser(anyLong()))
+                .thenReturn(List.of(itemRequestAnswerDto));
+
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", 99))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(itemRequestDto.getId()))
+                .andExpect(jsonPath("$[0].description").value(itemRequestDto.getDescription()))
+                .andExpect(jsonPath("$[0].requestorId").value(itemRequestDto.getRequestorId()));
+    }
+
+    @Test
+    void getAllRequests() throws Exception {
+        when(requestService.getAllRequests(anyLong()))
+                .thenReturn(List.of(itemRequestDto));
+
+        mvc.perform(get("/requests/all")
+                        .header("X-Sharer-User-Id", 99))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(itemRequestDto.getId()))
+                .andExpect(jsonPath("$[0].description").value(itemRequestDto.getDescription()))
+                .andExpect(jsonPath("$[0].requestorId").value(itemRequestDto.getRequestorId()));
     }
 }
