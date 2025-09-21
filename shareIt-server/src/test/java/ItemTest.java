@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import shareit.ShareItApp;
 import shareit.item.ItemService;
 import shareit.item.dto.ItemDto;
+import shareit.item.dto.ItemDtoWithBookComment;
 import shareit.item.model.Item;
 import shareit.user.UserService;
 import shareit.user.dto.UserDto;
@@ -83,6 +84,21 @@ public class ItemTest {
         assertThat(checkItem.getDescription(), equalTo("Newapple"));
         assertThat(checkItem.getAvailable(), equalTo(true));
         assertThat(checkItem.getOwner().getId(), equalTo(retItemDto.getOwner()));
+    }
+
+    @Test
+    void findAllByUser() {
+
+        UserDto retUserDto = userService.create(UserTest.makeUserDto("Ivanov Ivan", "some@email.com"));
+
+        ItemDto retItemDto = itemService.create(makeItemDto("Computer", "apple", true), retUserDto.getId());
+
+        Collection<ItemDtoWithBookComment> itemsDto = itemService.findAllByUser(retUserDto.getId());
+        List<ItemDtoWithBookComment> list = new ArrayList(itemsDto);
+
+        assertThat(list.getFirst().getId(), equalTo(retItemDto.getId()));
+        assertThat(list.getFirst().getName(), equalTo(retItemDto.getName()));
+        assertThat(list.getFirst().getDescription(), equalTo(retItemDto.getDescription()));
     }
 
     static ItemDto makeItemDto(String name, String description, Boolean available) {

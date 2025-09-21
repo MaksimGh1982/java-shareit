@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import shareit.ShareItApp;
-import shareit.booking.BookStatus;
-import shareit.booking.Booking;
-import shareit.booking.BookingService;
+import shareit.booking.*;
 import shareit.booking.dto.BookingDto;
 import shareit.item.ItemService;
 import shareit.item.dto.ItemDto;
@@ -109,20 +107,7 @@ public class BookingTest {
         assertThat(checkBooking.getItem().getId(), equalTo(retItemDto.getId()));
     }
 
-/*
-    @PatchMapping("/{bookingId}")
-    public Booking approved(@PathVariable long bookingId,
-                            @RequestHeader("X-Sharer-User-Id") Long userId,
-                            @RequestParam String approved) {
-        return bookingService.approved(bookingId, approved, userId);
-    }
-
-    @GetMapping("/{bookingId}")
-    public Booking findBooking(@PathVariable long bookingId, @RequestHeader(SHARER_USER) Long userId) {
-        return bookingService.findBookingById(bookingId, userId);
-    }*/
-
-    private BookingDto makeBookingDtoDto(LocalDateTime start, LocalDateTime end, Long itemId) {
+   private BookingDto makeBookingDtoDto(LocalDateTime start, LocalDateTime end, Long itemId) {
         BookingDto dto = new BookingDto();
         dto.setStart(start);
         dto.setEnd(end);
