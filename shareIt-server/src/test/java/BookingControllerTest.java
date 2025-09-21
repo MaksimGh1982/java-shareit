@@ -9,8 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import shareit.booking.BookStatus;
 import shareit.booking.Booking;
 import shareit.booking.BookingController;
@@ -21,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -33,7 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import shareit.item.dto.ItemDtoWithBookComment;
 import shareit.item.model.Item;
 import shareit.user.User;
 
