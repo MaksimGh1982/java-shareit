@@ -61,7 +61,7 @@ class ItemControllerTest {
                 "Apple",
                 true,
                 1L,
-                1);
+                1L);
 
         itemDtoWithBookComment = new ItemDtoWithBookComment(1L,
                 "Computer",
