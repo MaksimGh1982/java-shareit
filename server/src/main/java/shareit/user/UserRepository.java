@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select count(*) from User u where email = ?1 and id <> ?2")
-    Integer сountEmail(String email, Long userId);
+    Integer countEmail(String email, Long userId);
 
 }
