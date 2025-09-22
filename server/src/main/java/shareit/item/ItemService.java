@@ -1,11 +1,9 @@
 package shareit.item;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.booking.DateBooking;
+import shareit.booking.DateBooking;
 import shareit.booking.BookGetStatus;
 import shareit.booking.Booking;
 import shareit.booking.BookingRepository;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Validated
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -98,13 +95,12 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemDto create(@Valid ItemDto itemDto, Long userId) {
+    public ItemDto create(ItemDto itemDto, Long userId) {
         log.info("Создать вещь = {}", itemDto);
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new NotFoundException("пользователь с id = " + userId + " не найден");
         } else {
-            //ItemRequest itemRequest = requestRepository.findById(itemDto.getRequest()).orElse(null);
             itemDto.setOwner(userId);
             return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemDto, user)));
         }

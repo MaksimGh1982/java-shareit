@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ItemRequestDto {
     private Long id;
-    @NotBlank(message = "Описание запроса должно быть указано")
     private String description;
     private Long requestorId;
     @JsonFormat(pattern = "yyyy@MM@dd HH%mm%ss")

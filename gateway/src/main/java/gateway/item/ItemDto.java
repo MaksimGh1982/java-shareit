@@ -19,6 +19,6 @@ public class ItemDto {
     private Boolean available;
     private Long owner;
     @Nullable
-    private long requestId;
+    private Long requestId;
 
 }

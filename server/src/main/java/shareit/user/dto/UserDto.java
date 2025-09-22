@@ -12,7 +12,5 @@ import lombok.NoArgsConstructor;
 public class UserDto {
     private Long id;
     private String name;
-    @Email(message = "Email должен быть корректным")
-    @NotBlank(message = "Email должен быть указан")
     private String email;
 }

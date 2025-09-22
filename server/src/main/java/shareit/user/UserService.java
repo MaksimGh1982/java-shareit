@@ -1,10 +1,8 @@
 package shareit.user;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import shareit.exception.NotFoundException;
 import shareit.user.dto.UserDto;
 
@@ -14,7 +12,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Validated
 public class UserService {
 
     private final UserRepository repository;
@@ -41,7 +38,7 @@ public class UserService {
         return UserMapper.toUserDto(repository.findById(id).orElse(null));
     }
 
-    public UserDto create(@Valid UserDto userDto) {
+    public UserDto create(UserDto userDto) {
         log.info("Создать пользователя  {}", userDto.getName());
         validate(userDto);
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
@@ -68,11 +65,8 @@ public class UserService {
     }
 
     public void validate(UserDto userDto) {
-        long cnt = findAll()
-                .stream()
-                .filter(u -> u.getEmail().equals(userDto.getEmail()) && !u.getId().equals(userDto.getId()))
-                .count();
-        if (cnt > 0) {
+
+        if (repository.CountEmail(userDto.getEmail(), userDto.getId() == null ? 0 : userDto.getId()) > 0) {
             throw new RuntimeException("Не допустимы два пользователья с одинаковыми email");
         }
     }

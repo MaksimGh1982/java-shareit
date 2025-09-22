@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 import shareit.booking.dto.BookingDto;
 import shareit.exception.NotFoundException;
 import shareit.exception.ValidException;
@@ -24,7 +23,6 @@ import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
-@Validated
 public class BookingService {
 
     private final BookingRepository bookingRepository;
@@ -38,7 +36,7 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
     }
 
-    public Booking create(@Valid BookingDto bookingDto, Long userId) {
+    public Booking create(BookingDto bookingDto, Long userId) {
         log.info("Создать бронирование пользователя  id = " + userId + " вещи id = " + bookingDto.getItemId());
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {

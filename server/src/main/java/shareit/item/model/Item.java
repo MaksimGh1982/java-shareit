@@ -25,11 +25,8 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User owner;
-    //@ManyToOne
-    //@JoinColumn(name = "request_id")
-    //@Nullable
     @Column(name = "request_id", nullable = true)
-    private /*ItemRequest*/long request;
+    private Long request;
 
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -1,7 +1,6 @@
 package shareit.request;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.request.RequestItemAnswer;
 import shareit.request.dto.ItemRequestAnswerDto;
 
 import java.util.List;

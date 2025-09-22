@@ -1,7 +1,7 @@
 package shareit.item;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.booking.DateBooking;
+import shareit.booking.DateBooking;
 import shareit.item.dto.ItemDtoWithBookComment;
 import shareit.item.model.Item;
 

@@ -1,11 +1,8 @@
 package shareit.request;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.request.RequestItemAnswer;
 import shareit.exception.NotFoundException;
 import shareit.item.ItemRepository;
 import shareit.request.dto.ItemRequestAnswerDto;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Validated
 public class RequestService {
 
     private final UserRepository userRepository;
@@ -37,7 +33,7 @@ public class RequestService {
         this.itemRepository = itemRepository;
     }
 
-    public ItemRequestDto create(@Valid ItemRequestDto itemRequestDto, Long userId) {
+    public ItemRequestDto create(ItemRequestDto itemRequestDto, Long userId) {
         log.info("Создать запрос на вещь");
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id = " + userId + " не найден"));
         itemRequestDto.setRequestorId(userId);

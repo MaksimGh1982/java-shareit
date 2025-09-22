@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package shareit.request;
 
 public record RequestItemAnswer(
         Long itemId,
