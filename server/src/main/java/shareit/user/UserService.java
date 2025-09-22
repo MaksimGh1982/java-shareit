@@ -66,7 +66,7 @@ public class UserService {
 
     public void validate(UserDto userDto) {
 
-        if (repository.CountEmail(userDto.getEmail(), userDto.getId() == null ? 0 : userDto.getId()) > 0) {
+        if (repository.сountEmail(userDto.getEmail(), userDto.getId() == null ? 0 : userDto.getId()) > 0) {
             throw new RuntimeException("Не допустимы два пользователья с одинаковыми email");
         }
     }

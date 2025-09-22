@@ -1,6 +1,5 @@
 package shareit.request.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import shareit.request.RequestItemAnswer;
